@@ -1,0 +1,13 @@
+import mongoose from "mongoose";
+const { Schema, model } = mongoose;
+const userSchema = new Schema({name:{type:String,required:true},email:{type:String,required:true,unique:true,lowercase:true},passwordHash:{type:String,required:true},role:{type:String,enum:["customer","vendor","admin"],default:"customer"}},{timestamps:true});
+const productSchema = new Schema({vendor:{type:Schema.Types.ObjectId,ref:"User",required:true},title:{type:String,required:true},description:String,price:{type:Number,min:0,required:true},category:String,imageUrl:String,stock:{type:Number,default:0},active:{type:Boolean,default:true}},{timestamps:true});
+productSchema.index({title:"text",description:"text",category:"text"});
+const orderSchema = new Schema({customer:{type:Schema.Types.ObjectId,ref:"User",required:true},items:[{product:{type:Schema.Types.ObjectId,ref:"Product"},vendor:{type:Schema.Types.ObjectId,ref:"User"},title:String,quantity:Number,unitPrice:Number}],total:{type:Number,required:true},status:{type:String,enum:["placed","packed","shipped","delivered","cancelled"],default:"placed"},paymentStatus:{type:String,enum:["pending","test-paid","failed"],default:"pending"}},{timestamps:true});
+const reviewSchema = new Schema({product:{type:Schema.Types.ObjectId,ref:"Product",required:true},user:{type:Schema.Types.ObjectId,ref:"User",required:true},rating:{type:Number,min:1,max:5,required:true},comment:String},{timestamps:true});
+const couponSchema = new Schema({code:{type:String,unique:true,uppercase:true},percent:{type:Number,min:1,max:90},active:{type:Boolean,default:true},expiresAt:Date},{timestamps:true});
+export const User=model("User",userSchema);
+export const Product=model("Product",productSchema);
+export const Order=model("Order",orderSchema);
+export const Review=model("Review",reviewSchema);
+export const Coupon=model("Coupon",couponSchema);
